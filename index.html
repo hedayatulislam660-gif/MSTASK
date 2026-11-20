@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EARNBD - Earn Money</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Telegram Web App Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen pb-24">
+
+    <!-- Telegram Group Join Banner / Popup -->
+    <div id="telegramPopupBanner" class="hidden fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-pink-600 to-purple-600 p-3 shadow-lg border-b border-pink-400 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-2">
+            <i class="fa-brands fa-telegram text-xl text-white animate-bounce"></i>
+            <div>
+                <p class="font-bold text-white">আমাদের অফিসিয়াল টেলিগ্রাম গ্রুপে জয়েন করুন!</p>
+                <p class="text-[10px] text-pink-100">সকল আপডেট পেতে যুক্ত থাকুন।</p>
+            </div>
+        </div>
+        <div class="flex space-x-2">
+            <a href="https://t.me/hedayatulM" target="_blank" onclick="closeTelegramPopup()" class="bg-white text-pink-600 font-bold px-3 py-1.5 rounded-lg shadow">জয়েন</a>
+            <button onclick="closeTelegramPopup()" class="text-white px-2 py-1"><i class="fa-solid fa-xmark text-base"></i></button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="flex justify-between items-center p-4 bg-slate-900 border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+            <span class="text-xl">👑</span>
+            <h1 class="font-bold text-lg tracking-wider">EARNBD</h1>
+        </div>
+        <div class="flex space-x-3 text-xs">
+            <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">JOIN</span>
+            <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">REFER</span>
+            <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">EARN</span>
+        </div>
+    </header>
+
+    <div class="max-w-md mx-auto p-4">
+
+        <!-- HOME TAB -->
+        <div id="homeTab" class="tab-content active space-y-4">
+            <!-- User Info Card -->
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-yellow-500/20 border border-yellow-500 rounded-full flex items-center justify-center text-yellow-400 font-bold" id="userAvatar">U</div>
+                    <div>
+                        <h2 class="font-bold text-sm" id="userName">User <span class="text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-500/30">VIP</span></h2>
+                        <p class="text-[10px] text-slate-400 font-mono" id="userIdDisplay">ID: Loading...</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-500"></i>
+            </div>
+
+            <!-- Total Balance Card -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-900/80 p-5 rounded-xl border border-slate-800 shadow-lg">
+                <p class="text-xs text-slate-400 uppercase tracking-wide">TOTAL BALANCE</p>
+                <div class="text-3xl font-bold mt-1 text-yellow-400 flex items-center">
+                    <span class="mr-1">৳</span><span id="userBalance">0.00</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-800/60 text-xs">
+                    <div>
+                        <p class="text-slate-400">Total Earning</p>
+                        <p class="font-bold text-green-400 mt-0.5">৳<span id="totalEarning">0.00</span></p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400">Total Referrals</p>
+                        <p class="font-bold text-pink-400 mt-0.5" id="totalReferrals">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Boxes -->
+            <div class="grid grid-cols-4 gap-2 text-center text-xs">
+                <div onclick="switchTab('tasks')" class="bg-slate-900 p-3 rounded-xl border border-slate-800 cursor-pointer hover:border-pink-500 transition">
+                    <i class="fa-solid fa-clipboard-list text-pink-500 text-base mb-1"></i>
+                    <p class="text-[10px]">Join Tasks</p>
+                </div>
+                <div onclick="switchTab('profile')" class="bg-slate-900 p-3 rounded-xl border border-slate-800 cursor-pointer hover:border-pink-500 transition">
+                    <i class="fa-solid fa-users text-blue-500 text-base mb-1"></i>
+                    <p class="text-[10px]">Referrals</p>
+                </div>
+                <div onclick="switchTab('wallet')" class="bg-slate-900 p-3 rounded-xl border border-slate-800 cursor-pointer hover:border-pink-500 transition">
+                    <i class="fa-solid fa-wallet text-yellow-500 text-base mb-1"></i>
+                    <p class="text-[10px]">Wallet</p>
+                </div>
+                <div onclick="switchTab('leaderboard')" class="bg-slate-900 p-3 rounded-xl border border-slate-800 cursor-pointer hover:border-pink-500 transition">
+                    <i class="fa-solid fa-trophy text-orange-500 text-base mb-1"></i>
+                    <p class="text-[10px]">Ranking</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TASKS / ADS TAB -->
+        <div id="tasksTab" class="tab-content space-y-3">
+            <h2 class="text-sm font-bold text-pink-400"><i class="fa-solid fa-rectangle-ad mr-2"></i> উপলব্ধ টাস্ক ও অ্যাডসমূহ</h2>
+            
+            <!-- Timer Banner (Hidden Initially) -->
+            <div id="timerBox" class="hidden bg-pink-950/80 border border-pink-500 p-4 rounded-xl text-center space-y-2">
+                <p class="text-xs text-pink-300">বিজ্ঞাপন দেখা হচ্ছে... দয়া করে অপেক্ষা করুন</p>
+                <div class="text-2xl font-bold text-yellow-400" id="countdownTimer">20</div>
+                <p class="text-[10px] text-slate-300">বিজ্ঞাপন সম্পূর্ণ না দেখে ফিরে আসলে রিওয়ার্ড পাবেন না!</p>
+            </div>
+
+            <div id="taskListContainer" class="space-y-3">
+                <p class="text-xs text-slate-400 text-center py-4">টাস্ক লোড হচ্ছে...</p>
+            </div>
+        </div>
+
+        <!-- LEADERBOARD TAB -->
+        <div id="leaderboardTab" class="tab-content space-y-3">
+            <h2 class="text-sm font-bold text-orange-400"><i class="fa-solid fa-trophy mr-2"></i> লিডারবোর্ড</h2>
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center text-xs text-slate-400">
+                শীঘ্রই শীর্ষ আয়কারীদের তালিকা প্রকাশ করা হবে।
+            </div>
+        </div>
+
+        <!-- WALLET / WITHDRAW TAB -->
+        <div id="walletTab" class="tab-content space-y-4">
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                <h2 class="text-sm font-bold text-yellow-400"><i class="fa-solid fa-money-bill-transfer mr-2"></i> টাকা উইথড্র করুন</h2>
+                <div class="flex space-x-2">
+                    <button id="btnBkash" onclick="setMethod('bkash')" class="flex-1 py-2 rounded-lg text-xs font-bold border border-pink-500 bg-pink-500/20 text-pink-500">বিকাশ (bKash)</button>
+                    <button id="btnNagad" onclick="setMethod('nagad')" class="flex-1 py-2 rounded-lg text-xs font-bold border border-slate-800 bg-slate-950 text-slate-400">নগদ (Nagad)</button>
+                </div>
+                <input type="number" id="withdrawNumber" placeholder="আপনার একাউন্ট নম্বর (১১ ডিজিট)" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs focus:outline-none focus:border-pink-500">
+                <input type="number" id="withdrawAmount" placeholder="পরিমাণ (সর্বনিম্ন ৫০ টাকা)" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs focus:outline-none focus:border-pink-500">
+                <button onclick="requestWithdraw()" class="w-full bg-pink-600 hover:bg-pink-500 py-3 rounded-lg text-xs font-bold transition">উইথড্র রিকোয়েস্ট পাঠান</button>
+            </div>
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div id="profileTab" class="tab-content space-y-3">
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center space-y-2">
+                <h2 class="text-sm font-bold text-pink-400">প্রোফাইল ও রেফারেল</h2>
+                <p class="text-xs text-slate-400">আপনার রেফারেল লিংক শেয়ার করে ইনকাম বাড়ান।</p>
+                <div class="bg-slate-950 p-2 rounded text-[10px] font-mono border border-slate-800" id="referralLink">https://t.me/your_bot?start=ref_123</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around p-3 max-w-md mx-auto z-50">
+        <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-pink-500 text-xs transition active">
+            <i class="fa-solid fa-house text-base mb-1"></i> হোম
+        </button>
+        <button onclick="switchTab('tasks')" id="nav-tasks" class="flex flex-col items-center text-slate-400 text-xs transition">
+            <i class="fa-solid fa-clipboard-list text-base mb-1"></i> টাস্ক
+        </button>
+        <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="flex flex-col items-center text-slate-400 text-xs transition">
+            <i class="fa-solid fa-trophy text-base mb-1"></i> র‍্যাংক
+        </button>
+        <button onclick="switchTab('wallet')" id="nav-wallet" class="flex flex-col items-center text-slate-400 text-xs transition">
+            <i class="fa-solid fa-wallet text-base mb-1"></i> ওয়ালেট
+        </button>
+        <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center text-slate-400 text-xs transition">
+            <i class="fa-solid fa-user text-base mb-1"></i> প্রোফাইল
+        </button>
+    </nav>
+
+    <!-- Firebase & App Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, addDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDW4zFFePGgSLFLWF8E9fjMu6b9Nvnkacs",
+            authDomain: "bot1-b5906.firebaseapp.com",
+            projectId: "bot1-b5906",
+            storageBucket: "bot1-b5906.firebasestorage.app",
+            messagingSenderId: "957547223143",
+            appId: "1:957547223143:web:0972898fa293a350a61cc2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let userId = "12345678"; 
+        let userName = "User";
+        let currentBalance = 0;
+
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userId = tg.initDataUnsafe.user.id.toString();
+            userName = tg.initDataUnsafe.user.first_name || "User";
+        }
+
+        document.getElementById("userIdDisplay").innerText = "ID: " + userId;
+        document.getElementById("userName").innerHTML = userName + ' <span class="text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-500/30">VIP</span>';
+        document.getElementById("userAvatar").innerText = userName.charAt(0).toUpperCase();
+
+        function showAlertMessage(msg) {
+            try {
+                if (tg && tg.showAlert) {
+                    tg.showAlert(msg);
+                } else {
+                    alert(msg);
+                }
+            } catch (e) {
+                alert(msg);
+            }
+        }
+
+        function showTelegramPopup() {
+            try {
+                if (!localStorage.getItem('joined_telegram_mh')) {
+                    document.getElementById('telegramPopupBanner').classList.remove('hidden');
+                }
+            } catch (e) {
+                console.log("Banner Error:", e);
+            }
+        }
+
+        window.closeTelegramPopup = function() {
+            document.getElementById('telegramPopupBanner').classList.add('hidden');
+            localStorage.setItem('joined_telegram_mh', 'true');
+        }
+
+        async function initUser() {
+            try {
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists()) {
+                    currentBalance = userSnap.data().balance || 0;
+                } else {
+                    await setDoc(userRef, {
+                        balance: 0,
+                        timestamp: new Date()
+                    });
+                    currentBalance = 0;
+                }
+                updateUI();
+                loadTasks();
+                
+                setTimeout(showTelegramPopup, 1000);
+            } catch (error) {
+                console.error("Init Error:", error);
+            }
+        }
+
+        function updateUI() {
+            const formattedBalance = Number(currentBalance).toFixed(2);
+            document.getElementById("userBalance").innerText = formattedBalance;
+            document.getElementById("totalEarning").innerText = formattedBalance;
+        }
+
+        async function loadTasks() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "tasks"));
+                let tasksHtml = "";
+                
+                if(querySnapshot.empty) {
+                    document.getElementById("taskListContainer").innerHTML = `<p class="text-xs text-slate-400 text-center py-4">বর্তমানে কোনো টাস্ক নেই।</p>`;
+                    return;
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                const userHistoryRef = doc(db, "userHistory", userId + "_" + today);
+                const historySnap = await getDoc(userHistoryRef);
+                let completedTasks = historySnap.exists() ? historySnap.data().completed || [] : [];
+
+                querySnapshot.forEach((docSnap) => {
+                    const task = docSnap.data();
+                    const isCompleted = completedTasks.includes(docSnap.id);
+
+                    tasksHtml += `
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-xs text-white">${task.title}</h3>
+                                <p class="text-[10px] text-green-400 mt-0.5">রিওয়ার্ড: ৳${task.reward}</p>
+                            </div>
+                            <button onclick="startTaskTimer('${docSnap.id}', ${task.reward}, '${task.link}')" 
+                                    class="${isCompleted ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-pink-600 hover:bg-pink-500 text-white'} px-3 py-1.5 rounded-lg text-xs font-semibold transition"
+                                    ${isCompleted ? 'disabled' : ''}>
+                                ${isCompleted ? 'সম্পন্ন হয়েছে' : 'কাজ করুন'}
+                            </button>
+                        </div>
+                    `;
+                });
+                document.getElementById("taskListContainer").innerHTML = tasksHtml;
+            } catch (error) {
+                console.error("Task Load Error:", error);
+            }
+        }
+
+        // ২০ সেকেন্ড টাইমার ও অ্যাড ভিউ কন্ট্রোল ফাংশন
+        window.startTaskTimer = function(taskId, reward, link) {
+            window.open(link, '_blank'); // বিজ্ঞাপনের লিংক ওপেন হবে
+
+            const timerBox = document.getElementById('timerBox');
+            const countdownTimer = document.getElementById('countdownTimer');
+            timerBox.classList.remove('hidden');
+
+            let timeLeft = 20;
+            countdownTimer.innerText = timeLeft;
+
+            let timerInterval = setInterval(async () => {
+                timeLeft--;
+                countdownTimer.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerBox.classList.add('hidden');
+                    
+                    // ২০ সেকেন্ড শেষ হওয়ার পর টাকা যোগ করার ফাংশন কল হবে
+                    await completeTask(taskId, reward);
+                }
+            }, 1000);
+        }
+
+        async function completeTask(taskId, reward) {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const userHistoryRef = doc(db, "userHistory", userId + "_" + today);
+                
+                const historySnap = await getDoc(userHistoryRef);
+                let completedTasks = historySnap.exists() ? historySnap.data().completed || [] : [];
+
+                if (completedTasks.includes(taskId)) {
+                    showAlertMessage("আপনি এই টাস্কটি আজ ইতিমধ্যে সম্পন্ন করেছেন!");
+                    return;
+                }
+
+                completedTasks.push(taskId);
+
+                await setDoc(userHistoryRef, {
+                    userId: userId,
+                    completed: completedTasks,
+                    date: today
+                }, { merge: true });
+
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, {
+                    balance: increment(reward)
+                });
+                
+                currentBalance += reward;
+                updateUI();
+                showAlertMessage(`অভিনন্দন! আপনি বিজ্ঞাপন সফলভাবে দেখে ৳${reward} অর্জন করেছেন।`);
+                loadTasks();
+            } catch (error) {
+                console.error("Task Error:", error);
+                showAlertMessage("টাস্ক কমপ্লিট করতে সমস্যা হয়েছে।");
+            }
+        }
+
+        let selectedMethod = "bkash";
+        window.setMethod = function(method) {
+            selectedMethod = method;
+            const btnBkash = document.getElementById('btnBkash');
+            const btnNagad = document.getElementById('btnNagad');
+            
+            if(method === 'bkash') {
+                btnBkash.className = "flex-1 py-2 rounded-lg text-xs font-bold border border-pink-500 bg-pink-500/20 text-pink-500";
+                btnNagad.className = "flex-1 py-2 rounded-lg text-xs font-bold border border-slate-800 bg-slate-950 text-slate-400";
+            } else {
+                btnNagad.className = "flex-1 py-2 rounded-lg text-xs font-bold border border-orange-500 bg-orange-500/20 text-orange-500";
+                btnBkash.className = "flex-1 py-2 rounded-lg text-xs font-bold border border-slate-800 bg-slate-950 text-slate-400";
+            }
+        }
+
+        window.requestWithdraw = async function() {
+            let number = document.getElementById("withdrawNumber").value.trim();
+            let amount = parseFloat(document.getElementById("withdrawAmount").value);
+
+            if (number.length < 11) {
+                showAlertMessage("দয়া করে সঠিক ১১ ডিজিটের নম্বর দিন।");
+                return;
+            }
+            if (isNaN(amount)) {
+                showAlertMessage("সঠিক পরিমাণ লিখুন।");
+                return;
+            }
+
+            if (amount < 50) {
+                showAlertMessage("Insufficient balance! সর্বনিম্ন উইথড্র পরিমাণ ৫০ টাকা।");
+                return;
+            }
+
+            if (currentBalance < amount) {
+                showAlertMessage("আপনার পর্যাপ্ত ব্যালেন্স নেই!");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "withdraws"), {
+                    userId: userId,
+                    method: selectedMethod,
+                    accountNumber: number,
+                    amount: amount,
+                    status: "Pending",
+                    timestamp: new Date()
+                });
+
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, {
+                    balance: increment(-amount)
+                });
+
+                currentBalance -= amount;
+                updateUI();
+                
+                showAlertMessage("Withdraw request accepted! আপনার উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে।");
+                
+                document.getElementById("withdrawNumber").value = "";
+                document.getElementById("withdrawAmount").value = "";
+            } catch (error) {
+                console.error("Withdraw Error:", error);
+                showAlertMessage("উইথড্র রিকোয়েস্ট পাঠাতে সমস্যা হয়েছে।");
+            }
+        }
+
+        window.switchTab = function(tabName) {
+            ['home', 'tasks', 'leaderboard', 'wallet', 'profile'].forEach(t => {
+                document.getElementById(t + 'Tab').classList.remove('active');
+                const navBtn = document.getElementById('nav-' + t);
+                if(navBtn) {
+                    navBtn.classList.remove('text-pink-500');
+                    navBtn.classList.add('text-slate-400');
+                }
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            const activeNav = document.getElementById('nav-' + tabName);
+            if(activeNav) {
+                activeNav.classList.remove('text-slate-400');
+                activeNav.classList.add('text-pink-500');
+            }
+        }
+
+        initUser();
+    </script>
+</body>
+</html>
