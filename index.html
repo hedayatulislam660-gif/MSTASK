@@ -11,15 +11,22 @@
     <style>
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        /* Force Join Modal-er jonno extra safety */
+        #forceJoinModal {
+            display: flex;
+        }
+        #forceJoinModal.hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen pb-24">
 
-    <!-- Force Join Channel Modal (Fixed Pop-up) -->
-    <div id="forceJoinModal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full text-center space-y-5 shadow-2xl">
-            <div class="w-16 h-16 bg-pink-600/20 border border-pink-500 rounded-full flex items-center justify-center mx-auto text-pink-500 text-3xl animate-pulse">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+    <!-- Force Join Channel Modal (Guaranteed View) -->
+    <div id="forceJoinModal" class="fixed inset-0 z-[99999] bg-black/90 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-pink-500 p-6 rounded-2xl max-w-sm w-full text-center space-y-5 shadow-2xl">
+            <div class="w-16 h-16 bg-pink-600/20 border border-pink-500 rounded-full flex items-center justify-center mx-auto text-pink-500 text-3xl animate-bounce">
+                <i class="fa-solid fa-bullhorn"></i>
             </div>
             <div class="space-y-2">
                 <h3 class="font-bold text-sm text-white leading-relaxed">বট ব্যবহার করতে হলে অবশ্যই আমাদের চ্যানেলে জয়েন থাকতে হবে!</h3>
@@ -28,9 +35,8 @@
             
             <div class="space-y-3 pt-2">
                 <a href="https://t.me/hedayatulM" target="_blank" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 border border-slate-700 transition">
-                    <i class="fa-solid fa-bullhorn text-pink-500 text-base"></i>
+                    <i class="fa-solid fa-link text-pink-500 text-base"></i>
                     <span>চ্যানেলে জয়েন করুন</span>
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400 ml-1"></i>
                 </a>
                 
                 <button onclick="checkChannelJoin()" class="w-full bg-pink-600 hover:bg-pink-500 text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition shadow-lg shadow-pink-600/30">
@@ -236,7 +242,7 @@
             }
         }
 
-        // Force Join Modal Control - সবসময় প্রথমে শো করবে যতক্ষণ না জয়েন করে বাটনে ক্লিক করা হয়
+        // Force Join Modal Hide করার ফাংশন
         window.checkChannelJoin = function() {
             document.getElementById('forceJoinModal').classList.add('hidden');
             showAlertMessage("ধন্যবাদ! চ্যানেলে যুক্ত থাকার জন্য যাচাই করা হয়েছে।");
