@@ -15,18 +15,29 @@
 </head>
 <body class="bg-slate-950 text-white min-h-screen pb-24">
 
-    <!-- Telegram Group Join Banner / Popup -->
-    <div id="telegramPopupBanner" class="hidden fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-pink-600 to-purple-600 p-3 shadow-lg border-b border-pink-400 flex items-center justify-between text-xs">
-        <div class="flex items-center space-x-2">
-            <i class="fa-brands fa-telegram text-xl text-white animate-bounce"></i>
-            <div>
-                <p class="font-bold text-white">আমাদের অফিসিয়াল টেলিগ্রাম গ্রুপে জয়েন করুন!</p>
-                <p class="text-[10px] text-pink-100">সকল আপডেট পেতে যুক্ত থাকুন।</p>
+    <!-- Force Join Channel Modal (Screenshots er moto) -->
+    <div id="forceJoinModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full text-center space-y-5 shadow-2xl">
+            <div class="w-16 h-16 bg-pink-600/20 border border-pink-500 rounded-full flex items-center justify-center mx-auto text-pink-500 text-3xl animate-pulse">
+                <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-        </div>
-        <div class="flex space-x-2">
-            <a href="https://t.me/hedayatulM" target="_blank" onclick="closeTelegramPopup()" class="bg-white text-pink-600 font-bold px-3 py-1.5 rounded-lg shadow">জয়েন</a>
-            <button onclick="closeTelegramPopup()" class="text-white px-2 py-1"><i class="fa-solid fa-xmark text-base"></i></button>
+            <div class="space-y-2">
+                <h3 class="font-bold text-sm text-white leading-relaxed">বট ব্যবহার করতে হলে অবশ্যই আমাদের চ্যানেলে জয়েন থাকতে হবে!</h3>
+                <p class="text-xs text-slate-400">দয়া করে নিচের লিংকে জয়েন করে '✅ জয়েন করেছি' বাটনে ক্লিক করুন।</p>
+            </div>
+            
+            <div class="space-y-3 pt-2">
+                <a href="https://t.me/hedayatulM" target="_blank" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 border border-slate-700 transition">
+                    <i class="fa-solid fa-bullhorn text-pink-500 text-base"></i>
+                    <span>চ্যানেলে জয়েন করুন</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400 ml-1"></i>
+                </a>
+                
+                <button onclick="checkChannelJoin()" class="w-full bg-pink-600 hover:bg-pink-500 text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition shadow-lg shadow-pink-600/30">
+                    <i class="fa-solid fa-square-check text-base"></i>
+                    <span>জয়েন করেছি</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -226,19 +237,22 @@
             }
         }
 
-        function showTelegramPopup() {
+        // Force Join চেক করার ফাংশন
+        function checkForceJoin() {
             try {
-                if (!localStorage.getItem('joined_telegram_mh')) {
-                    document.getElementById('telegramPopupBanner').classList.remove('hidden');
+                if (!localStorage.getItem('joined_channel_mh')) {
+                    document.getElementById('forceJoinModal').classList.remove('hidden');
                 }
             } catch (e) {
-                console.log("Banner Error:", e);
+                console.log("Modal Error:", e);
             }
         }
 
-        window.closeTelegramPopup = function() {
-            document.getElementById('telegramPopupBanner').classList.add('hidden');
-            localStorage.setItem('joined_telegram_mh', 'true');
+        window.checkChannelJoin = function() {
+            // ইউজারের ক্লিকের পর পপআপ হাইড করা (লোকাল স্টোরেজে সেভ হবে যাতে বারবার না আসে)
+            document.getElementById('forceJoinModal').classList.add('hidden');
+            localStorage.setItem('joined_channel_mh', 'true');
+            showAlertMessage("ধন্যবাদ! চ্যানেলে যুক্ত থাকার জন্য যাচাই করা হয়েছে।");
         }
 
         async function initUser() {
@@ -251,19 +265,16 @@
                     currentBalance = data.balance || 0;
                     totalReferralsCount = data.referCount || 0;
                 } else {
-                    // নতুন ইউজার চেক করার সময় টেলিগ্রাম স্টার্ট প্যারামিটার (রেফারার আইডি) চেক করা
                     let referrerId = null;
                     if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
                         referrerId = tg.initDataUnsafe.start_param;
                     }
 
-                    // নিজের আইডির সাথে অন্য কারো আইডি ম্যাচ না করলে এবং রেফারার থাকলে বোনাস যোগ হবে
                     if (referrerId && referrerId !== userId) {
                         const referrerRef = doc(db, "users", referrerId);
                         const referrerSnap = await getDoc(referrerRef);
 
                         if (referrerSnap.exists()) {
-                            // রেফারারের ব্যালেন্সে ৫ টাকা এবং রেফার কাউন্ট ১ বাড়িয়ে দেওয়া
                             await updateDoc(referrerRef, {
                                 balance: increment(5),
                                 referCount: increment(1)
@@ -271,7 +282,6 @@
                         }
                     }
 
-                    // নতুন ইউজারের ডাটা তৈরি
                     await setDoc(userRef, {
                         balance: 0,
                         referCount: 0,
@@ -284,7 +294,8 @@
                 updateUI();
                 loadTasks();
                 
-                setTimeout(showTelegramPopup, 1000);
+                // অ্যাপ খোলার সাথে সাথে Force Join পপআপ চেক করা
+                setTimeout(checkForceJoin, 800);
             } catch (error) {
                 console.error("Init Error:", error);
             }
@@ -297,6 +308,7 @@
             document.getElementById("totalReferrals").innerText = totalReferralsCount;
         }
 
+        // টাস্ক লোড করা এবং ১২ ঘণ্টার টাইম চেক করা
         async function loadTasks() {
             try {
                 const querySnapshot = await getDocs(collection(db, "tasks"));
@@ -307,14 +319,29 @@
                     return;
                 }
 
-                const today = new Date().toISOString().split('T')[0];
-                const userHistoryRef = doc(db, "userHistory", userId + "_" + today);
+                const userHistoryRef = doc(db, "userHistory", userId);
                 const historySnap = await getDoc(userHistoryRef);
-                let completedTasks = historySnap.exists() ? historySnap.data().completed || [] : [];
+                let taskHistory = historySnap.exists() ? historySnap.data() : {};
+
+                const currentTime = new Date().getTime();
+                const cooldownTime = 12 * 60 * 60 * 1000; // ১২ ঘণ্টা মিলিসেকেন্ডে
 
                 querySnapshot.forEach((docSnap) => {
                     const task = docSnap.data();
-                    const isCompleted = completedTasks.includes(docSnap.id);
+                    const taskId = docSnap.id;
+                    
+                    let lastCompletedTime = taskHistory[taskId] || 0;
+                    let timeDifference = currentTime - lastCompletedTime;
+                    let isLocked = timeDifference < cooldownTime;
+                    
+                    let buttonText = "কাজ করুন";
+                    let buttonClass = "bg-pink-600 hover:bg-pink-500 text-white";
+
+                    if (isLocked) {
+                        let remainingHours = Math.ceil((cooldownTime - timeDifference) / (1000 * 60 * 60));
+                        buttonText = `${remainingHours} ঘণ্টা পর উপলব্ধ`;
+                        buttonClass = "bg-slate-700 text-slate-400 cursor-not-allowed";
+                    }
 
                     tasksHtml += `
                         <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
@@ -322,10 +349,9 @@
                                 <h3 class="font-bold text-xs text-white">${task.title}</h3>
                                 <p class="text-[10px] text-green-400 mt-0.5">রিওয়ার্ড: ৳${task.reward}</p>
                             </div>
-                            <button onclick="startTaskTimer('${docSnap.id}', ${task.reward}, '${task.link}')" 
-                                    class="${isCompleted ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-pink-600 hover:bg-pink-500 text-white'} px-3 py-1.5 rounded-lg text-xs font-semibold transition"
-                                    ${isCompleted ? 'disabled' : ''}>
-                                ${isCompleted ? 'সম্পন্ন হয়েছে' : 'কাজ করুন'}
+                            <button onclick="${isLocked ? `showAlertMessage('এই টাস্কটি আবার করতে আরও কিছু সময় অপেক্ষা করুন!')` : `startTaskTimer('${taskId}', ${task.reward}, '${task.link}')`}" 
+                                    class="${buttonClass} px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                                ${buttonText}
                             </button>
                         </div>
                     `;
@@ -338,7 +364,7 @@
 
         // ২০ সেকেন্ড টাইমার ও অ্যাড ভিউ কন্ট্রোল ফাংশন
         window.startTaskTimer = function(taskId, reward, link) {
-            window.open(link, '_blank'); // বিজ্ঞাপনের লিংক ওপেন হবে
+            window.open(link, '_blank');
 
             const timerBox = document.getElementById('timerBox');
             const countdownTimer = document.getElementById('countdownTimer');
@@ -354,32 +380,30 @@
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     timerBox.classList.add('hidden');
-                    
-                    // ২০ সেকেন্ড শেষ হওয়ার পর টাকা যোগ করার ফাংশন কল হবে
                     await completeTask(taskId, reward);
                 }
             }, 1000);
         }
 
+        // টাস্ক সম্পূর্ণ হলে ব্যালেন্স ও টাইম আপডেট করা
         async function completeTask(taskId, reward) {
             try {
-                const today = new Date().toISOString().split('T')[0];
-                const userHistoryRef = doc(db, "userHistory", userId + "_" + today);
-                
+                const userHistoryRef = doc(db, "userHistory", userId);
                 const historySnap = await getDoc(userHistoryRef);
-                let completedTasks = historySnap.exists() ? historySnap.data().completed || [] : [];
-
-                if (completedTasks.includes(taskId)) {
-                    showAlertMessage("আপনি এই টাস্কটি আজ ইতিমধ্যে সম্পন্ন করেছেন!");
+                let taskHistory = historySnap.exists() ? historySnap.data() : {};
+                
+                const currentTime = new Date().getTime();
+                const cooldownTime = 12 * 60 * 60 * 1000;
+                
+                let lastCompletedTime = taskHistory[taskId] || 0;
+                
+                if (currentTime - lastCompletedTime < cooldownTime) {
+                    showAlertMessage("আপনি এই টাস্কটি সম্প্রতি করেছেন। ১২ ঘণ্টা পর আবার চেষ্টা করুন!");
                     return;
                 }
 
-                completedTasks.push(taskId);
-
                 await setDoc(userHistoryRef, {
-                    userId: userId,
-                    completed: completedTasks,
-                    date: today
+                    [taskId]: currentTime
                 }, { merge: true });
 
                 const userRef = doc(db, "users", userId);
