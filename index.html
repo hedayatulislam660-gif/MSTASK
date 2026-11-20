@@ -139,10 +139,11 @@
 
         <!-- PROFILE TAB -->
         <div id="profileTab" class="tab-content space-y-3">
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center space-y-2">
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center space-y-3">
                 <h2 class="text-sm font-bold text-pink-400">প্রোফাইল ও রেফারেল</h2>
-                <p class="text-xs text-slate-400">আপনার রেফারেল লিংক শেয়ার করে ইনকাম বাড়ান।</p>
-                <div class="bg-slate-950 p-2 rounded text-[10px] font-mono border border-slate-800" id="referralLink">https://t.me/your_bot?start=ref_123</div>
+                <p class="text-xs text-slate-400">আপনার রেফারেল লিংক শেয়ার করুন। প্রতিটি সফল রেফারে পাবেন <span class="text-yellow-400 font-bold">৫ টাকা</span> বোনাস!</p>
+                <div class="bg-slate-950 p-3 rounded-lg text-xs font-mono border border-slate-800 break-all text-pink-300 select-all" id="referralLinkDisplay">লিংক লোড হচ্ছে...</div>
+                <button onclick="copyReferralLink()" class="w-full bg-pink-600 hover:bg-pink-500 py-2.5 rounded-lg text-xs font-bold transition">রেফারেল লিংক কপি করুন</button>
             </div>
         </div>
 
@@ -190,6 +191,7 @@
         let userId = "12345678"; 
         let userName = "User";
         let currentBalance = 0;
+        let totalReferralsCount = 0;
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id.toString();
@@ -199,6 +201,18 @@
         document.getElementById("userIdDisplay").innerText = "ID: " + userId;
         document.getElementById("userName").innerHTML = userName + ' <span class="text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-500/30">VIP</span>';
         document.getElementById("userAvatar").innerText = userName.charAt(0).toUpperCase();
+
+        // রেফারেল লিংক সেটআপ
+        const referralLink = `https://t.me/Mhtask1bot?start=${userId}`;
+        document.getElementById("referralLinkDisplay").innerText = referralLink;
+
+        window.copyReferralLink = function() {
+            navigator.clipboard.writeText(referralLink).then(() => {
+                showAlertMessage("রেফারেল লিংক সফলভাবে কপি করা হয়েছে!");
+            }).catch(err => {
+                showAlertMessage("লিংক কপি করতে সমস্যা হয়েছে।");
+            });
+        }
 
         function showAlertMessage(msg) {
             try {
@@ -233,13 +247,39 @@
                 const userSnap = await getDoc(userRef);
 
                 if (userSnap.exists()) {
-                    currentBalance = userSnap.data().balance || 0;
+                    const data = userSnap.data();
+                    currentBalance = data.balance || 0;
+                    totalReferralsCount = data.referCount || 0;
                 } else {
+                    // নতুন ইউজার চেক করার সময় টেলিগ্রাম স্টার্ট প্যারামিটার (রেফারার আইডি) চেক করা
+                    let referrerId = null;
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+                        referrerId = tg.initDataUnsafe.start_param;
+                    }
+
+                    // নিজের আইডির সাথে অন্য কারো আইডি ম্যাচ না করলে এবং রেফারার থাকলে বোনাস যোগ হবে
+                    if (referrerId && referrerId !== userId) {
+                        const referrerRef = doc(db, "users", referrerId);
+                        const referrerSnap = await getDoc(referrerRef);
+
+                        if (referrerSnap.exists()) {
+                            // রেফারারের ব্যালেন্সে ৫ টাকা এবং রেফার কাউন্ট ১ বাড়িয়ে দেওয়া
+                            await updateDoc(referrerRef, {
+                                balance: increment(5),
+                                referCount: increment(1)
+                            });
+                        }
+                    }
+
+                    // নতুন ইউজারের ডাটা তৈরি
                     await setDoc(userRef, {
                         balance: 0,
+                        referCount: 0,
+                        referredBy: referrerId || null,
                         timestamp: new Date()
                     });
                     currentBalance = 0;
+                    totalReferralsCount = 0;
                 }
                 updateUI();
                 loadTasks();
@@ -254,6 +294,7 @@
             const formattedBalance = Number(currentBalance).toFixed(2);
             document.getElementById("userBalance").innerText = formattedBalance;
             document.getElementById("totalEarning").innerText = formattedBalance;
+            document.getElementById("totalReferrals").innerText = totalReferralsCount;
         }
 
         async function loadTasks() {
