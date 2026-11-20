@@ -15,7 +15,7 @@
 </head>
 <body class="bg-slate-950 text-white min-h-screen pb-24">
 
-    <!-- Force Join Channel Modal (Screenshots er moto) -->
+    <!-- Force Join Channel Modal -->
     <div id="forceJoinModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full text-center space-y-5 shadow-2xl">
             <div class="w-16 h-16 bg-pink-600/20 border border-pink-500 rounded-full flex items-center justify-center mx-auto text-pink-500 text-3xl animate-pulse">
@@ -114,7 +114,7 @@
         <div id="tasksTab" class="tab-content space-y-3">
             <h2 class="text-sm font-bold text-pink-400"><i class="fa-solid fa-rectangle-ad mr-2"></i> উপলব্ধ টাস্ক ও অ্যাডসমূহ</h2>
             
-            <!-- Timer Banner (Hidden Initially) -->
+            <!-- Timer Banner -->
             <div id="timerBox" class="hidden bg-pink-950/80 border border-pink-500 p-4 rounded-xl text-center space-y-2">
                 <p class="text-xs text-pink-300">বিজ্ঞাপন দেখা হচ্ছে... দয়া করে অপেক্ষা করুন</p>
                 <div class="text-2xl font-bold text-yellow-400" id="countdownTimer">20</div>
@@ -143,7 +143,7 @@
                     <button id="btnNagad" onclick="setMethod('nagad')" class="flex-1 py-2 rounded-lg text-xs font-bold border border-slate-800 bg-slate-950 text-slate-400">নগদ (Nagad)</button>
                 </div>
                 <input type="number" id="withdrawNumber" placeholder="আপনার একাউন্ট নম্বর (১১ ডিজিট)" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs focus:outline-none focus:border-pink-500">
-                <input type="number" id="withdrawAmount" placeholder="পরিমাণ (সর্বনিম্ন ৫০ টাকা)" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs focus:outline-none focus:border-pink-500">
+                <input type="number" id="withdrawAmount" placeholder="পরিমাণ" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs focus:outline-none focus:border-pink-500">
                 <button onclick="requestWithdraw()" class="w-full bg-pink-600 hover:bg-pink-500 py-3 rounded-lg text-xs font-bold transition">উইথড্র রিকোয়েস্ট পাঠান</button>
             </div>
         </div>
@@ -152,7 +152,7 @@
         <div id="profileTab" class="tab-content space-y-3">
             <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center space-y-3">
                 <h2 class="text-sm font-bold text-pink-400">প্রোফাইল ও রেফারেল</h2>
-                <p class="text-xs text-slate-400">আপনার রেফারেল লিংক শেয়ার করুন। প্রতিটি সফল রেফারে পাবেন <span class="text-yellow-400 font-bold">৫ টাকা</span> বোনাস!</p>
+                <p class="text-xs text-slate-400">আপনার রেফারেল লিংক শেয়ার করুন। প্রতিটি সফল রেফারে বোনাস পাবেন!</p>
                 <div class="bg-slate-950 p-3 rounded-lg text-xs font-mono border border-slate-800 break-all text-pink-300 select-all" id="referralLinkDisplay">লিংক লোড হচ্ছে...</div>
                 <button onclick="copyReferralLink()" class="w-full bg-pink-600 hover:bg-pink-500 py-2.5 rounded-lg text-xs font-bold transition">রেফারেল লিংক কপি করুন</button>
             </div>
@@ -213,7 +213,6 @@
         document.getElementById("userName").innerHTML = userName + ' <span class="text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-500/30">VIP</span>';
         document.getElementById("userAvatar").innerText = userName.charAt(0).toUpperCase();
 
-        // রেফারেল লিংক সেটআপ
         const referralLink = `https://t.me/Mhtask1bot?start=${userId}`;
         document.getElementById("referralLinkDisplay").innerText = referralLink;
 
@@ -237,7 +236,6 @@
             }
         }
 
-        // Force Join চেক করার ফাংশন
         function checkForceJoin() {
             try {
                 if (!localStorage.getItem('joined_channel_mh')) {
@@ -249,7 +247,6 @@
         }
 
         window.checkChannelJoin = function() {
-            // ইউজারের ক্লিকের পর পপআপ হাইড করা (লোকাল স্টোরেজে সেভ হবে যাতে বারবার না আসে)
             document.getElementById('forceJoinModal').classList.add('hidden');
             localStorage.setItem('joined_channel_mh', 'true');
             showAlertMessage("ধন্যবাদ! চ্যানেলে যুক্ত থাকার জন্য যাচাই করা হয়েছে।");
@@ -259,6 +256,13 @@
             try {
                 const userRef = doc(db, "users", userId);
                 const userSnap = await getDoc(userRef);
+
+                // রেফারেল সেটিংস ফেচ করা
+                const settingsDoc = await getDoc(doc(db, "settings", "referral"));
+                let refBonus = 5; // ডিফল্ট ৫ টাকা
+                if (settingsDoc.exists()) {
+                    refBonus = settingsDoc.data().bonus || 5;
+                }
 
                 if (userSnap.exists()) {
                     const data = userSnap.data();
@@ -276,7 +280,7 @@
 
                         if (referrerSnap.exists()) {
                             await updateDoc(referrerRef, {
-                                balance: increment(5),
+                                balance: increment(refBonus),
                                 referCount: increment(1)
                             });
                         }
@@ -293,8 +297,6 @@
                 }
                 updateUI();
                 loadTasks();
-                
-                // অ্যাপ খোলার সাথে সাথে Force Join পপআপ চেক করা
                 setTimeout(checkForceJoin, 800);
             } catch (error) {
                 console.error("Init Error:", error);
@@ -308,7 +310,6 @@
             document.getElementById("totalReferrals").innerText = totalReferralsCount;
         }
 
-        // টাস্ক লোড করা এবং ১২ ঘণ্টার টাইম চেক করা
         async function loadTasks() {
             try {
                 const querySnapshot = await getDocs(collection(db, "tasks"));
@@ -324,7 +325,7 @@
                 let taskHistory = historySnap.exists() ? historySnap.data() : {};
 
                 const currentTime = new Date().getTime();
-                const cooldownTime = 12 * 60 * 60 * 1000; // ১২ ঘণ্টা মিলিসেকেন্ডে
+                const cooldownTime = 12 * 60 * 60 * 1000; // ১২ ঘণ্টা
 
                 querySnapshot.forEach((docSnap) => {
                     const task = docSnap.data();
@@ -362,7 +363,6 @@
             }
         }
 
-        // ২০ সেকেন্ড টাইমার ও অ্যাড ভিউ কন্ট্রোল ফাংশন
         window.startTaskTimer = function(taskId, reward, link) {
             window.open(link, '_blank');
 
@@ -385,7 +385,6 @@
             }, 1000);
         }
 
-        // টাস্ক সম্পূর্ণ হলে ব্যালেন্স ও টাইম আপডেট করা
         async function completeTask(taskId, reward) {
             try {
                 const userHistoryRef = doc(db, "userHistory", userId);
@@ -440,6 +439,17 @@
             let number = document.getElementById("withdrawNumber").value.trim();
             let amount = parseFloat(document.getElementById("withdrawAmount").value);
 
+            // ফায়ারস্টোর থেকে অ্যাডমিন প্যানেলের সেট করা সর্বনিম্ন উইথড্র লিমিট চেক করা
+            let minLimit = 50; // ডিফল্ট ৫০
+            try {
+                const withdrawSettingsDoc = await getDoc(doc(db, "settings", "withdraw"));
+                if (withdrawSettingsDoc.exists()) {
+                    minLimit = withdrawSettingsDoc.data().minLimit || 50;
+                }
+            } catch (e) {
+                console.log("Limit fetch error:", e);
+            }
+
             if (number.length < 11) {
                 showAlertMessage("দয়া করে সঠিক ১১ ডিজিটের নম্বর দিন।");
                 return;
@@ -449,8 +459,8 @@
                 return;
             }
 
-            if (amount < 50) {
-                showAlertMessage("Insufficient balance! সর্বনিম্ন উইথড্র পরিমাণ ৫০ টাকা।");
+            if (amount < minLimit) {
+                showAlertMessage(`সর্বনিম্ন উইথড্র পরিমাণ ${minLimit} টাকা!`);
                 return;
             }
 
@@ -477,7 +487,7 @@
                 currentBalance -= amount;
                 updateUI();
                 
-                showAlertMessage("Withdraw request accepted! আপনার উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে।");
+                showAlertMessage("আপনার উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে।");
                 
                 document.getElementById("withdrawNumber").value = "";
                 document.getElementById("withdrawAmount").value = "";
